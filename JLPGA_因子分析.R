@@ -10,7 +10,7 @@ df <- read_sheet("https://docs.google.com/spreadsheets/d/1N12bZEAg2jGqjAQxva_ifX
 df_num <- df %>%
   select(where(is.numeric)) %>%
   drop_na() %>%
-  select(where(~ sd(.x) > 0)) # 全員同じ値の列（sdが0）を捨てる。.xはチェック対象となっている各列のデータを指す
+  select(where(~ sd(.x) > 0)) 
 
 res_cor <- cor(df_num) 
 corrplot(res_cor, 
@@ -40,13 +40,13 @@ df_input <- df %>%
     ボギー,
     # ダブルボギー
   ) %>%
-  column_to_rownames(var = "選手名") %>% # 選手名を列から行名に移動
+  column_to_rownames(var = "選手名") %>% 
   as.data.frame()
 
 data <- apply(df_input %>% select(-平均ストローク), 2, scale) # 平均ストロークは回帰分析でのみ使用するので除外
 
 VSS.scree(data)
-model <- fa(data, nfactors = 4, rotate = "varimax", fm="ml") #最尤法。デフォは最小残差法
+model <- fa(data, nfactors = 4, rotate = "varimax", fm="ml") 
 fa.diagram(model, cex=0.1)
 print(model, cut = 0.3, sort = TRUE)
 kable(round(unclass(model$loadings), 3), caption = "Factor Loadings")
@@ -119,15 +119,12 @@ ggplot(df_combined, aes(x = ML1, y = ML2, label = rownames(df_combined))) +
 
 #--------------------------------------
 
-# 抽出した因子(ML)3つのうちもっとも平均ストローク(目的変数)に貢献しているのはどれか？
 res_lm <- lm(平均ストローク ~ ML1 + ML2 + ML3, data = df_combined)
-summary(res_lm) # R-squared:0.7738は3つで何割を説明できているか
-# Estimateはもし精度や各能力を1あげると0.73や0.62など改善するということ(下でプラマイを逆にしている部分)
+summary(res_lm)
 
-# グラフに描くためデータフレーム(表)に変換
-coef_df_score <- as.data.frame(summary(res_lm)$coefficients[-1, ]) # -1で１行目は不要なので削除
+coef_df_score <- as.data.frame(summary(res_lm)$coefficients[-1, ]) 
 coef_df_score$Factor <- c("ショット精度(ML1)", "リカバリー能力(ML2)", "攻撃力/パット(ML3)")
-coef_df_score$Estimate <- abs(coef_df_score$Estimate) # マイナスをプラスに(グラフで見やすいように)
+coef_df_score$Estimate <- abs(coef_df_score$Estimate) 
 
 
 ggplot(coef_df_score, aes(x = reorder(Factor, Estimate), y = Estimate)) +
