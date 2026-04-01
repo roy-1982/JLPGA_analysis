@@ -4,9 +4,8 @@ font_add_google("Dela Gothic One", "dela")
 font_add_google("M PLUS 1p", "mplus")
 showtext_auto() 
 
-df <- read_sheet("https://docs.google.com/spreadsheets/d/1N12bZEAg2jGqjAQxva_ifXY5gRyNF05vE9aQhnJT-Jg/edit?gid=0#gid=0") 
+df <- read_sheet(Sys.getenv("MY_SHEET_URL"))
 
-# 数値データ && 標準偏差が0より大きいことを条件に絞り込み
 df_num <- df %>%
   select(where(is.numeric)) %>%
   drop_na() %>%
